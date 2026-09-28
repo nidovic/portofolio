@@ -4,9 +4,11 @@ A bilingual React portfolio for Lodovic Rothney Feutse Nziko, a full-stack and m
 
 ## Run locally
 
-Requirements: Node.js 20.19+ or 22.12+, npm 10+.
+Requirements: Node.js 26 and npm 10+.
 
 ```sh
+nvm install
+nvm use
 npm install
 npm run dev
 ```
@@ -28,6 +30,13 @@ npm run resume
 - `src/i18n/` contains English/French interface and profile copy. The browser language is detected initially; the language selector remembers a manual choice locally.
 - Tailwind CSS v4 is integrated through Vite. shadcn/ui components use Radix primitives, JavaScript/JSX, and the `@/` source alias.
 - ESLint is configured in `eslint.config.js`; run it with `npm run lint`.
+
+## GitHub Actions
+
+Two independent workflows in `.github/workflows/` run on pull requests targeting `main`, pushes to `main`, or manual dispatch:
+
+- `lint.yml` installs dependencies with `npm ci` and runs `npm run lint`.
+- `build.yml` installs dependencies with `npm ci` and runs `npm run build`.
 
 ## Publish on Vercel
 

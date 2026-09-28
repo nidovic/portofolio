@@ -4,9 +4,11 @@ A bilingual React portfolio for Lodovic Rothney Feutse Nziko, a full-stack and m
 
 ## Run locally
 
-Requirements: Node.js 20.19+ or 22.12+, npm 10+.
+Requirements: Node.js 26 and npm 10+.
 
 ```sh
+nvm install
+nvm use
 npm install
 npm run dev
 ```

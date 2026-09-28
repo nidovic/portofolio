@@ -4,6 +4,7 @@ import { Link, NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import i18n from '@/i18n.js'
 import { ROUTES } from '@/constants/routes.js'
+import { PROFILE } from '@/constants/profile.js'
 
 const navigation = [
   ['home', ROUTES.home],
@@ -29,9 +30,9 @@ function Header() {
       <a className="skip-link" href="#main-content">{t('nav.skip')}</a>
       <header className="site-header">
         <div className="header-inner">
-          <Link className="brand" to={ROUTES.home} aria-label={t('nav.brand')}>
+          <Link className="brand" to={ROUTES.home} aria-label={`${PROFILE.fullName}, ${t('nav.home')}`}>
             <img src="/mark.svg" alt="" width="38" height="38" />
-            <span>Maya Laurent<span className="brand-dot">.</span></span>
+            <span>{PROFILE.shortName}<span className="brand-dot">.</span></span>
           </Link>
 
           <button

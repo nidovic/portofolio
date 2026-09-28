@@ -1,10 +1,13 @@
-import { ArrowUpRight, AtSign, MapPin } from 'lucide-react'
+import { ArrowUpRight, AtSign, MapPin, Phone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import ContactForm from '@/components/ContactForm.jsx'
 import PageIntro from '@/components/PageIntro.jsx'
+import { PROFILE } from '@/constants/profile.js'
+import { localizedText } from '@/lib/localized.js'
 
 function ContactPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const language = i18n.resolvedLanguage
 
   return (
     <div className="page-wrap inner-page contact-page">
@@ -13,14 +16,18 @@ function ContactPage() {
         <aside className="contact-aside">
           <div className="contact-detail">
             <span><AtSign size={18} aria-hidden="true" /></span>
-            <div><p>{t('contact.emailLabel')}</p><a href="mailto:maya.laurent@example.com">maya.laurent@example.com</a></div>
+            <div><p>{t('contact.emailLabel')}</p><a href={`mailto:${PROFILE.email}`}>{PROFILE.email}</a></div>
           </div>
           <div className="contact-detail">
             <span><MapPin size={18} aria-hidden="true" /></span>
-            <div><p>{t('contact.locationLabel')}</p><span>{t('contact.location')}</span></div>
+            <div><p>{t('contact.locationLabel')}</p><span>{localizedText(PROFILE.location, language)}</span></div>
           </div>
-          <a className="contact-social" href="https://www.linkedin.com/" target="_blank" rel="noreferrer">
-            LinkedIn <ArrowUpRight size={15} aria-hidden="true" />
+          <div className="contact-detail">
+            <span><Phone size={18} aria-hidden="true" /></span>
+            <div><p>{t('contact.phoneLabel')}</p><a href={PROFILE.phoneHref}>{PROFILE.phone}</a></div>
+          </div>
+          <a className="contact-social" href={PROFILE.githubUrl} target="_blank" rel="noreferrer">
+            GitHub <ArrowUpRight size={15} aria-hidden="true" />
           </a>
         </aside>
         <section className="contact-form-panel" aria-labelledby="contact-form-title">

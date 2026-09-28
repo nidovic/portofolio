@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { PROFILE } from '@/constants/profile.js'
 import { ROUTES } from '@/constants/routes.js'
 import Footer from '@/components/Footer.jsx'
 import Header from '@/components/Header.jsx'
@@ -30,7 +31,7 @@ function App() {
     const activePage = Object.entries(ROUTES).find(([, path]) => path === pathname)?.[0] ?? 'home'
 
     // Keep browser metadata aligned with the visible route and selected language.
-    document.title = `Maya Laurent — ${t(`nav.${activePage}`)}`
+    document.title = `${PROFILE.shortName} — ${t(`nav.${activePage}`)}`
     document.documentElement.lang = i18n.resolvedLanguage?.split('-')[0] ?? 'en'
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [i18n.resolvedLanguage, pathname, t])

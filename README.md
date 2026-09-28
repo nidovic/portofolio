@@ -1,6 +1,6 @@
-# Maya Laurent — Portfolio
+# Ludovic Feutse — Portfolio
 
-A bilingual React portfolio for Maya Laurent, a fictional frontend developer with four years of experience. This is a client-side assignment demo: contact-form values are validated, discarded, and never sent or stored.
+A bilingual React portfolio for Ludovic Rothney Feutse Nziko, a full-stack and mobile software developer with five years of experience. The contact form validates values locally, discards them, and never sends or stores them.
 
 ## Run locally
 
@@ -19,7 +19,7 @@ npm run build
 npm run resume
 ```
 
-`npm run resume` reproducibly generates the fictional one-page résumé at `public/maya-laurent-resume.pdf`.
+`npm run resume` reproducibly generates the two-page résumé at `public/ludovic-feutse-nziko-resume.pdf` from the shared profile data in `src/constants/profile.js`.
 
 ## Structure
 
@@ -39,6 +39,6 @@ npm run resume
 
 No GitHub remote or push is configured by this setup. Publish the repository yourself when ready, then add your repository and live-site links to the assignment submission.
 
-## Fictional profile
+## Profile and project sources
 
-Maya Laurent, Lyon, France · `maya.laurent@example.com` · fictional education, projects, outcomes and résumé. Project photography is loaded from Unsplash.
+Personal details, employment, education, skills, service descriptions, and project records live in `src/constants/profile.js`. Project descriptions and links were checked against the Spreeloop case studies, Eitel's Tours, Yengafrica, and the public Place Bot repository.

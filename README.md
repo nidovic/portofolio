@@ -1,6 +1,6 @@
-# Ludovic Feutse — Portfolio
+# Lodovic Feutse — Portfolio
 
-A bilingual React portfolio for Ludovic Rothney Feutse Nziko, a full-stack and mobile software developer with five years of experience. The contact form validates values locally, discards them, and never sends or stores them.
+A bilingual React portfolio for Lodovic Rothney Feutse Nziko, a full-stack and mobile software developer with five years of experience. The contact form validates values locally, discards them, and never sends or stores them.
 
 ## Run locally
 
@@ -19,7 +19,7 @@ npm run build
 npm run resume
 ```
 
-`npm run resume` reproducibly generates the two-page résumé at `public/ludovic-feutse-nziko-resume.pdf` from the shared profile data in `src/constants/profile.js`.
+`npm run resume` reproducibly generates the two-page résumé at `public/lodovic-feutse-nziko-resume.pdf` from the shared profile data in `src/constants/profile.js`.
 
 ## Structure
 

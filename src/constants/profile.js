@@ -1,9 +1,9 @@
 // Keep editable personal, career, and project facts here for both the site and résumé PDF.
 export const PROFILE = {
-  firstName: 'Ludovic',
+  firstName: 'Lodovic',
   lastName: 'Rothney Feutse Nziko',
-  fullName: 'Ludovic Rothney Feutse Nziko',
-  shortName: 'Ludovic Feutse',
+  fullName: 'Lodovic Rothney Feutse Nziko',
+  shortName: 'Lodovic Feutse',
   initials: 'LF',
   title: {
     en: 'Full-Stack & Mobile Software Developer',
@@ -15,10 +15,10 @@ export const PROFILE = {
   },
   phone: '(613) 818-3315',
   phoneHref: 'tel:+16138183315',
-  email: 'ludovicfeutse@gmail.com',
+  email: 'lodovicfeutse@gmail.com',
   githubUrl: 'https://github.com/nidovic',
   avatarUrl: 'https://avatars.githubusercontent.com/u/25538310?v=4',
-  resumePath: '/ludovic-feutse-nziko-resume.pdf',
+  resumePath: '/lodovic-feutse-nziko-resume.pdf',
   yearsExperience: '5+',
   applicationCount: '9',
   summary: {

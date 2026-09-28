@@ -29,6 +29,13 @@ npm run resume
 - Tailwind CSS v4 is integrated through Vite. shadcn/ui components use Radix primitives, JavaScript/JSX, and the `@/` source alias.
 - ESLint is configured in `eslint.config.js`; run it with `npm run lint`.
 
+## GitHub Actions
+
+Two independent workflows in `.github/workflows/` run on pull requests targeting `main`, pushes to `main`, or manual dispatch:
+
+- `lint.yml` installs dependencies with `npm ci` and runs `npm run lint`.
+- `build.yml` installs dependencies with `npm ci` and runs `npm run build`.
+
 ## Publish on Vercel
 
 1. Create or sign in to your own Vercel account.

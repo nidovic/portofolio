@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { ArrowUpRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -5,19 +6,26 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button.jsx'
 import { ROUTES } from '@/constants/routes.js'
 import { EMAIL_REGEX, PHONE_REGEX } from '@/utils/regex.js'
+import { createContact } from '@/utils/portfolioApi.js'
 
 function ContactForm() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [submitError, setSubmitError] = useState('')
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm({ mode: 'onBlur' })
 
-  function handleValidSubmit() {
-    // Assignment 1 is client-side only: validate, discard values, then return home.
-    navigate(ROUTES.home, { state: { contactSubmitted: true } })
+  async function handleValidSubmit(values) {
+    setSubmitError('')
+    try {
+      await createContact(values)
+      navigate(ROUTES.home, { state: { contactSubmitted: true } })
+    } catch (error) {
+      setSubmitError(error.message || t('contact.submitError'))
+    }
   }
 
   return (
@@ -57,6 +65,7 @@ function ContactForm() {
         </Button>
         <p>{t('contact.note')}</p>
       </div>
+      {submitError && <p className="field-error" role="alert">{submitError}</p>}
     </form>
   )
 }

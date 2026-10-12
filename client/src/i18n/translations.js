@@ -8,7 +8,7 @@ export const translations = {
       primaryCta: 'Explore my work', secondaryCta: 'A little about me',
       note: 'Mobile · Web · Cloud', years: 'years of experience',
       applications: 'apps across platforms', overview: 'Portfolio overview', selectedEyebrow: 'Selected work', selected: 'Products I helped bring to life', selectedLink: 'See all projects', language: 'English · French',
-      contactSubmitted: 'Thanks. Your form was checked locally; nothing was sent.',
+      contactSubmitted: 'Thanks. Your contact details were saved to the portfolio database.',
     },
     about: {
       resume: 'Download résumé (PDF)', label: 'Profile',
@@ -45,7 +45,7 @@ export const translations = {
       email: 'Email address', message: 'What’s on your mind?',
       placeholders: { firstName: 'Your first name', lastName: 'Your last name', phone: '+1 (555) 123-4567', email: 'you@example.com', message: 'A little about the project, the timing, or the question…' },
       send: 'Send message', required: 'This field is required.', invalidEmail: 'Enter a valid email address.',
-      invalidPhone: 'Enter a valid contact number.', note: 'This demo form does not send or save your details.',
+      invalidPhone: 'Enter a valid contact number.', note: 'Your message is saved to the portfolio database; no email is sent.', submitError: 'Could not save your message. Please try again later.',
     },
   },
   fr: {
@@ -56,7 +56,7 @@ export const translations = {
       primaryCta: 'Découvrir mes projets', secondaryCta: 'À propos de moi',
       note: 'Mobile · Web · Cloud', years: 'ans d’expérience',
       applications: 'apps multiplateformes', overview: 'Aperçu du portfolio', selectedEyebrow: 'Projets choisis', selected: 'Des produits auxquels j’ai contribué', selectedLink: 'Voir tous les projets', language: 'Anglais · Français',
-      contactSubmitted: 'Merci. Ton formulaire a été vérifié localement, mais rien n’a été envoyé.',
+      contactSubmitted: 'Merci. Tes coordonnées ont été enregistrées dans la base du portfolio.',
     },
     about: {
       resume: 'Télécharger le CV (PDF)', label: 'Profil',
@@ -93,7 +93,7 @@ export const translations = {
       email: 'Adresse e-mail', message: 'Ton message',
       placeholders: { firstName: 'Ton prénom', lastName: 'Ton nom', phone: '+1 (555) 123-4567', email: 'toi@exemple.fr', message: 'Quelques mots sur le projet, le calendrier ou ta question…' },
       send: 'Envoyer le message', required: 'Ce champ est obligatoire.', invalidEmail: 'Saisis une adresse e-mail valide.',
-      invalidPhone: 'Saisis un numéro de téléphone valide.', note: 'Ce formulaire de démonstration n’envoie ni n’enregistre tes coordonnées.',
+      invalidPhone: 'Saisis un numéro de téléphone valide.', note: 'Le message est enregistré dans la base du portfolio; aucun courriel n’est envoyé.', submitError: 'Impossible d’enregistrer ton message. Réessaie plus tard.',
     },
   },
 }

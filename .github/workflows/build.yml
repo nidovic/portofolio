@@ -30,11 +30,8 @@ jobs:
       - name: Install backend dependencies
         run: npm ci
 
-      - name: Install client dependencies
-        run: npm ci --prefix client
-
-      - name: Build Vite client
-        run: npm run build --prefix client
+      - name: Build client through root script
+        run: npm run build
 
       - name: Check server syntax
         run: npm run lint:server

@@ -12,6 +12,8 @@ MERN portfolio with a React/Vite client, an Express/Mongoose REST API, and JWT a
 - Node.js 26 (`.nvmrc`) and npm 10+
 - A MongoDB Atlas cluster and database user
 
+Vercel currently requires Node.js 24.x for its build runtime. The root `package.json` declares 24.x so Vercel accepts deployments; local development and CI remain on Node.js 26 to satisfy the course requirement. The app has been checked under both versions.
+
 ## Continuous integration
 
 GitHub Actions uses three independent workflows on pushes to `main`, pull requests to `main`, and manual dispatch:

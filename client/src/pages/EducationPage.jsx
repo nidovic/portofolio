@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { ArrowUpRight, BriefcaseBusiness, GraduationCap, Medal } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -5,6 +6,7 @@ import PageIntro from '@/components/PageIntro.jsx'
 import { ROUTES } from '@/constants/routes.js'
 import { EDUCATION, EXPERIENCE } from '@/constants/profile.js'
 import { localizedText } from '@/lib/localized.js'
+import { loadQualifications } from '@/utils/portfolioApi.js'
 
 const entryIcons = { degree: GraduationCap, certificate: Medal, work: BriefcaseBusiness }
 
@@ -32,6 +34,23 @@ function TimelineEntry({ entry, type, language }) {
 function EducationPage() {
   const { t, i18n } = useTranslation()
   const language = i18n.resolvedLanguage
+  const [qualifications, setQualifications] = useState(EDUCATION)
+
+  useEffect(() => {
+    let isMounted = true
+
+    loadQualifications()
+      .then((records) => {
+        if (isMounted && records.length > 0) setQualifications(records)
+      })
+      .catch(() => {
+        // Keep the profile's education content visible while the API is unavailable.
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   return (
     <div className="page-wrap inner-page">
@@ -39,7 +58,7 @@ function EducationPage() {
       <section className="timeline-section">
         <h2>{t('education.educationLabel')}</h2>
         <div className="timeline-list">
-          {EDUCATION.map((entry) => <TimelineEntry key={entry.institution} entry={entry} type="degree" language={language} />)}
+          {qualifications.map((entry) => <TimelineEntry key={entry.id || entry.slug || entry._id || entry.institution} entry={entry} type="degree" language={language} />)}
         </div>
       </section>
       <section className="timeline-section timeline-section--work">

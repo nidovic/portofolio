@@ -1,0 +1,106 @@
+{
+  "info": {
+    "name": "MyPortfolio Assignment 2 API",
+    "description": "CRUD and JWT checks for the MyPortfolio Express API. Set local admin/test credentials in collection variables before sending requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "adminEmail", "value": "" },
+    { "key": "adminPassword", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "userPassword", "value": "" },
+    { "key": "userToken", "value": "" },
+    { "key": "contactId", "value": "" },
+    { "key": "projectId", "value": "" },
+    { "key": "qualificationId", "value": "" },
+    { "key": "managedUserId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Server",
+      "item": [
+        { "name": "Welcome", "request": { "method": "GET", "url": "{{baseUrl}}/" } },
+        { "name": "Health", "request": { "method": "GET", "url": "{{baseUrl}}/api/health" } }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Sign up (public user only)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Created as a regular user', () => { pm.response.to.have.status(201); pm.expect(pm.response.json().user.role).to.eql('user'); pm.expect(pm.response.json().user).not.to.have.property('passwordHash'); });", "pm.collectionVariables.set('userToken', pm.response.json().token);"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Assignment 2 Test User\",\n  \"email\": \"assignment2-{{$timestamp}}@example.test\",\n  \"password\": \"{{userPassword}}\",\n  \"role\": \"admin\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/auth/signup" }
+        },
+        {
+          "name": "Sign in as admin",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Admin sign-in succeeds', () => pm.response.to.have.status(200));", "pm.collectionVariables.set('adminToken', pm.response.json().token);"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/auth/signin" }
+        },
+        { "name": "Unauthorized contacts list (expected 401)", "request": { "method": "GET", "url": "{{baseUrl}}/api/contacts" } },
+        { "name": "Forbidden users list as regular user (expected 403)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }], "url": "{{baseUrl}}/api/users" } }
+      ]
+    },
+    {
+      "name": "Contacts CRUD",
+      "item": [
+        {
+          "name": "Create contact (public)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Contact created', () => pm.response.to.have.status(201));", "pm.collectionVariables.set('contactId', pm.response.json()._id);"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"API\",\n  \"lastName\": \"Test\",\n  \"email\": \"contact-{{$timestamp}}@example.test\",\n  \"phone\": \"+16135550100\",\n  \"message\": \"Temporary contact record for Assignment 2 API testing.\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/contacts" }
+        },
+        { "name": "List contacts (admin)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/api/contacts" } },
+        { "name": "Read contact (admin)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/api/contacts/{{contactId}}" } },
+        { "name": "Update contact (admin)", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"message\": \"Updated temporary contact record.\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/contacts/{{contactId}}" } },
+        { "name": "Delete contact (admin)", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/api/contacts/{{contactId}}" } }
+      ]
+    },
+    {
+      "name": "Projects CRUD",
+      "item": [
+        { "name": "List projects (public)", "request": { "method": "GET", "url": "{{baseUrl}}/api/projects" } },
+        {
+          "name": "Create project (admin)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Project created', () => pm.response.to.have.status(201));", "pm.collectionVariables.set('projectId', pm.response.json()._id);"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"slug\": \"postman-{{$guid}}\",\n  \"title\": \"Postman Test Project\",\n  \"completionDate\": \"2026\",\n  \"description\": \"Temporary project for CRUD evidence.\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/projects" }
+        },
+        { "name": "Read project (public)", "request": { "method": "GET", "url": "{{baseUrl}}/api/projects/{{projectId}}" } },
+        { "name": "Update project (admin)", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated temporary project for CRUD evidence.\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/projects/{{projectId}}" } },
+        { "name": "Delete project (admin)", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/api/projects/{{projectId}}" } }
+      ]
+    },
+    {
+      "name": "Qualifications CRUD",
+      "item": [
+        { "name": "List qualifications (public)", "request": { "method": "GET", "url": "{{baseUrl}}/api/qualifications" } },
+        {
+          "name": "Create qualification (admin)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Qualification created', () => pm.response.to.have.status(201));", "pm.collectionVariables.set('qualificationId', pm.response.json()._id);"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"slug\": \"postman-{{$guid}}\",\n  \"title\": \"Postman Test Qualification\",\n  \"completionDate\": \"2026\",\n  \"description\": \"Temporary qualification for CRUD evidence.\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/qualifications" }
+        },
+        { "name": "Read qualification (public)", "request": { "method": "GET", "url": "{{baseUrl}}/api/qualifications/{{qualificationId}}" } },
+        { "name": "Update qualification (admin)", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated temporary qualification.\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/qualifications/{{qualificationId}}" } },
+        { "name": "Delete qualification (admin)", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/api/qualifications/{{qualificationId}}" } }
+      ]
+    },
+    {
+      "name": "Users CRUD (admin)",
+      "item": [
+        { "name": "List users", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/api/users" } },
+        {
+          "name": "Create user",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('User created without password hash', () => { pm.response.to.have.status(201); pm.expect(pm.response.json()).not.to.have.property('passwordHash'); });", "pm.collectionVariables.set('managedUserId', pm.response.json()._id);"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Managed Test User\",\n  \"email\": \"managed-{{$timestamp}}@example.test\",\n  \"password\": \"{{userPassword}}\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/users" }
+        },
+        { "name": "Read user", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/api/users/{{managedUserId}}" } },
+        { "name": "Update user", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Managed Test User\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/users/{{managedUserId}}" } },
+        { "name": "Delete user", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/api/users/{{managedUserId}}" } }
+      ]
+    },
+    {
+      "name": "Sign out (stateless JWT)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Sign-out response is successful', () => pm.response.to.have.status(200));", "pm.collectionVariables.unset('adminToken');"] } }],
+      "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/api/auth/signout" }
+    }
+  ]
+}

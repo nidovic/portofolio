@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { ArrowUpRight, Menu, X } from 'lucide-react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import i18n from '@/i18n.js'
 import { ROUTES } from '@/constants/routes.js'
 import { PROFILE } from '@/constants/profile.js'
+import { useAuth } from '@/contexts/useAuth.js'
 
 const navigation = [
   ['home', ROUTES.home],
@@ -17,12 +18,27 @@ const navigation = [
 function Header() {
   const { t } = useTranslation()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [signOutError, setSignOutError] = useState('')
+  const { isAuthenticated, signOut } = useAuth()
+  const navigate = useNavigate()
   const currentLanguage = i18n.resolvedLanguage?.split('-')[0] ?? 'en'
 
   function selectLanguage(language) {
     // Persist only the language preference; the contact form never stores its values.
     window.localStorage.setItem('portfolio-language', language)
     i18n.changeLanguage(language)
+  }
+
+  async function handleSignOut() {
+    setSignOutError('')
+    const request = signOut()
+    navigate(ROUTES.signIn, { replace: true })
+    setMenuOpen(false)
+    try {
+      await request
+    } catch {
+      setSignOutError(t('auth.signoutError'))
+    }
   }
 
   return (
@@ -62,6 +78,14 @@ function Header() {
                 {t(`nav.${label}`)}
               </NavLink>
             ))}
+            {isAuthenticated ? (
+              <>
+                <NavLink className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`} to={ROUTES.admin} onClick={() => setMenuOpen(false)}>{t('nav.admin')}</NavLink>
+                <button className="nav-action" type="button" onClick={handleSignOut}>{t('auth.signoutAction')}</button>
+              </>
+            ) : (
+              <NavLink className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`} to={ROUTES.signIn} onClick={() => setMenuOpen(false)}>{t('auth.signinAction')}</NavLink>
+            )}
             <div className="language-switch" role="group" aria-label={t('nav.language')}>
               {['en', 'fr'].map((language) => (
                 <button
@@ -81,6 +105,7 @@ function Header() {
             </Link>
           </nav>
         </div>
+        {signOutError && <p className="header-error" role="alert">{signOutError}</p>}
       </header>
     </>
   )

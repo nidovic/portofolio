@@ -13,7 +13,7 @@ function ProjectCard({ project, compact = false }) {
         <span className="project-card__number">{project.number}</span>
       </div>
       <div className="project-card__content">
-        <p className="project-card__category">{localizedText(project.category, language)}{project.period && ` · ${project.period}`}</p>
+        <p className="project-card__category">{localizedText(project.category, language)}{localizedText(project.period, language) && ` · ${localizedText(project.period, language)}`}</p>
         <h2>{project.name}</h2>
         <p className="project-card__description">{localizedText(project.description, language)}</p>
         {!compact && (
@@ -25,8 +25,8 @@ function ProjectCard({ project, compact = false }) {
         )}
         {!compact && project.links.length > 0 && (
           <div className="project-card__links">
-            {project.links.map((link) => (
-              <a key={link.type} href={link.url} target="_blank" rel="noreferrer">
+            {project.links.map((link, index) => (
+              <a key={`${link.type}-${index}`} href={link.url} target="_blank" rel="noreferrer">
                 {t(`projects.linkLabels.${link.type}`)} <ExternalLink size={13} aria-hidden="true" />
               </a>
             ))}

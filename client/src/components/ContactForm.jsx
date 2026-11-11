@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button.jsx'
 import { ROUTES } from '@/constants/routes.js'
 import { EMAIL_REGEX, PHONE_REGEX } from '@/utils/regex.js'
-import { createContact } from '@/utils/portfolioApi.js'
+import { createContact } from '@/repositories/contactRepository.js'
 
 function ContactForm() {
   const { t } = useTranslation()

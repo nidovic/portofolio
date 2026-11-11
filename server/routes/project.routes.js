@@ -7,12 +7,16 @@ import { validateRequest } from '../middleware/validate.js'
 const router = express.Router()
 const createRules = [
   body('title').trim().isLength({ min: 2, max: 180 }),
+  body('startDate').optional().isString(),
+  body('endDate').optional().isString(),
   body('completionDate').optional({ values: 'falsy' }).trim().isLength({ max: 80 }),
   body('description').trim().isLength({ min: 3, max: 5000 }),
   body('sourceUrl').optional({ values: 'falsy' }).isURL({ require_protocol: true }),
 ]
 const updateRules = [
   body('title').optional().trim().isLength({ min: 2, max: 180 }),
+  body('startDate').optional().isString(),
+  body('endDate').optional().isString(),
   body('completionDate').optional({ values: 'falsy' }).trim().isLength({ max: 80 }),
   body('description').optional().trim().isLength({ min: 3, max: 5000 }),
   body('sourceUrl').optional({ values: 'falsy' }).isURL({ require_protocol: true }),

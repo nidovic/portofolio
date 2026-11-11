@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { addDateRange } from './dateRange.js'
 
 const projectSchema = new mongoose.Schema({
   slug: { type: String, required: true, unique: true, trim: true, lowercase: true },
@@ -20,5 +21,7 @@ const projectSchema = new mongoose.Schema({
   links: [{ type: { type: String, required: true }, url: { type: String, required: true } }],
   sourceUrl: { type: String, trim: true, maxlength: 2048, default: '' },
 }, { timestamps: true })
+
+addDateRange(projectSchema)
 
 export default mongoose.models.Project || mongoose.model('Project', projectSchema)

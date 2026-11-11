@@ -26,5 +26,6 @@ router.post('/signin', authLimiter, [
 ], validateRequest, authController.signin)
 
 router.post('/signout', requireAuth, authController.signout)
+router.get('/me', requireAuth, authController.currentUser)
 
 export default router

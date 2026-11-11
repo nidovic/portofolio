@@ -17,7 +17,9 @@ app.use(helmet())
 app.use(cors({
 	origin(origin, callback) {
 		if (!origin || allowedOrigins.has(origin)) return callback(null, true)
-		return callback(new Error('Origin is not allowed by CORS.'))
+		const error = new Error('Origin is not allowed by CORS.')
+		error.statusCode = 403
+		return callback(error)
 	},
 }))
 app.use(express.json({ limit: '20kb' }))

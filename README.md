@@ -57,6 +57,7 @@ npm run dev
 ```
 
 - Client: `http://localhost:5173`
+- The Vite client is also allowed at `http://127.0.0.1:5173`; if using another client origin, add it to the comma-separated `CLIENT_ORIGIN` value in `.env` and restart the API.
 - API: `http://localhost:5000`
 - Welcome response: `GET http://localhost:5000/`
 
@@ -66,7 +67,7 @@ All resource routes use `/api` and return JSON errors with appropriate status co
 
 | Resource | Routes | Access |
 | --- | --- | --- |
-| Contacts | `GET/POST /api/contacts`, `GET/PUT/DELETE /api/contacts/:id` | Create is public; reads and mutations require admin JWT |
+| Contacts | `GET/POST /api/contacts`, `GET/PUT/DELETE /api/contacts/:id` | Create is public; reads require a JWT; mutations require admin JWT |
 | Projects | `GET/POST /api/projects`, `GET/PUT/DELETE /api/projects/:id` | Reads are public; mutations require admin JWT |
 | Qualifications | `GET/POST /api/qualifications`, `GET/PUT/DELETE /api/qualifications/:id` | Reads are public; mutations require admin JWT |
 | Users | `GET/POST /api/users`, `GET/PUT/DELETE /api/users/:id` | Admin JWT required |
@@ -74,13 +75,28 @@ All resource routes use `/api` and return JSON errors with appropriate status co
 
 Send protected requests with `Authorization: Bearer <access-token>`. Public sign-up always creates the `user` role; role assignment is only available through admin-protected user CRUD. Passwords are bcrypt-hashed and omitted from responses. Access tokens expire according to `JWT_EXPIRES_IN`; sign-out is stateless, so clients must discard their token.
 
+## Frontend integration
+
+The React client routes every API request through the resource repositories under `client/src/repositories/`: authentication, contacts, projects, and qualifications. The shared `apiClient.js` handles JSON requests and Bearer tokens. The dashboard (`/dashboard`) requires sign-in; regular users can read contact submissions, projects, and qualifications, while only admins can create, edit, or delete records. Contact submissions remain public.
+
+Authentication tokens and the minimal user profile are stored in `sessionStorage`, so they are cleared when the browser tab session ends. Sign-out discards the local token immediately and also asks the API to confirm the stateless sign-out. As with any JavaScript-accessible token storage, protect the client against script injection and never put tokens in screenshots or source control. For a deployed frontend, set `VITE_API_BASE_URL` to the backend origin; local development defaults to `http://localhost:5000`.
+
+Create a regular account at `/sign-up`, then sign in at `/sign-in`. The seeded administrator uses the private environment values documented above; public registration cannot grant the admin role.
+
+Visitors who open `/dashboard` without a session are redirected to `/unauthorized`, where they can continue to sign in. The previous `/admin` address redirects to `/dashboard`. Expired sessions are cleared when the dashboard checks access, and the visitor is redirected to the same sign-in prompt.
+
+Signing out immediately clears the local session and opens `/sign-in`. The API sign-out request is sent using the former token; a failure is reported without restoring the local session. Because JWT sign-out is stateless, an independently retained token remains valid until it expires.
+
+Administrators can view registered users in the dashboard and, after confirmation, promote a user or remove another administrator's access. An administrator cannot remove their own administrator access. The API checks the current database role on every request, so role changes take effect immediately for authorization; the dashboard refreshes its role on load and when the window regains focus. User management is available only to administrators, and password hashes are never returned by the user API.
+
+Project and qualification forms use a required start date for new records and an optional end date. Dates are stored as calendar-date strings (`YYYY-MM-DD`); an empty end date means it is not specified, not necessarily that the work is still in progress. The API validates both dates and their order. Existing `completionDate` values remain readable and are not automatically converted: they can contain an imprecise year or range. Editing an old record preserves that value; entering a start date switches the displayed period to the new fields.
+
 ## Seed and API tests
 
 ```sh
 npm run seed:portfolio
 npm run seed:admin
 npm run test:api
-npm run evidence
 ```
 
 `test:api` runs real HTTP requests against MongoDB, checks CRUD/validation/JWT authorization and password privacy, then deletes its temporary test records. It requires a working `MONGODB_URI` and local `JWT_SECRET` in `.env`.
@@ -89,4 +105,6 @@ The Postman collection at `docs/MyPortfolio.postman_collection.json` covers welc
 
 ## Assignment evidence
 
-`npm run evidence` generates `evidence/Assignment2-Evidence.docx`. It includes the captured welcome/health/API-data/client-flow screenshots, live MongoDB collection counts, and the verified integration-test status matrix. Add your own MongoDB Compass screenshot and Postman request/response/status screenshots before submitting; the local document marks these items explicitly. Also capture the server console's successful MongoDB connection. Never include `.env`, credentials, passwords, or JWT values in evidence.
+The `evidence/` folder contains selected screenshots for the assignment. The Word document is prepared separately and is not included in the repository. Review screenshots for private information before sharing or committing them: do not include `.env`, credentials, password hashes, or JWT values.
+
+The `npm run evidence` script targets an earlier set of screenshots and cannot regenerate the current document from the renamed files. Do not run it against the current evidence folder: its output could overwrite a Word document there.

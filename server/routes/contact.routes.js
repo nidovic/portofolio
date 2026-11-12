@@ -21,8 +21,8 @@ const updateRules = [
 ]
 const idRule = param('id').isMongoId()
 
-router.get('/', requireAuth, requireAdmin, contactController.list)
-router.get('/:id', requireAuth, requireAdmin, idRule, validateRequest, contactController.read)
+router.get('/', requireAuth, contactController.list)
+router.get('/:id', requireAuth, idRule, validateRequest, contactController.read)
 router.post('/', createRules, validateRequest, contactController.create)
 router.put('/:id', requireAuth, requireAdmin, idRule, updateRules, validateRequest, contactController.update)
 router.delete('/:id', requireAuth, requireAdmin, idRule, validateRequest, contactController.remove)

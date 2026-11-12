@@ -6,7 +6,7 @@ import PageIntro from '@/components/PageIntro.jsx'
 import { ROUTES } from '@/constants/routes.js'
 import { EDUCATION, EXPERIENCE } from '@/constants/profile.js'
 import { localizedText } from '@/lib/localized.js'
-import { loadQualifications } from '@/utils/portfolioApi.js'
+import { listPortfolioQualifications } from '@/repositories/qualificationRepository.js'
 
 const entryIcons = { degree: GraduationCap, certificate: Medal, work: BriefcaseBusiness }
 
@@ -35,16 +35,25 @@ function EducationPage() {
   const { t, i18n } = useTranslation()
   const language = i18n.resolvedLanguage
   const [qualifications, setQualifications] = useState(EDUCATION)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+  const [apiLoaded, setApiLoaded] = useState(false)
 
   useEffect(() => {
     let isMounted = true
 
-    loadQualifications()
+    listPortfolioQualifications()
       .then((records) => {
-        if (isMounted && records.length > 0) setQualifications(records)
+        if (isMounted) {
+          setQualifications(records)
+          setApiLoaded(true)
+        }
       })
-      .catch(() => {
-        // Keep the profile's education content visible while the API is unavailable.
+      .catch((error) => {
+        if (isMounted) setLoadError(error.message)
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false)
       })
 
     return () => {
@@ -55,6 +64,9 @@ function EducationPage() {
   return (
     <div className="page-wrap inner-page">
       <PageIntro eyebrow={t('education.eyebrow')} title={t('education.title')} description={t('education.intro')} />
+      {loading && <p role="status">{t('education.loading')}</p>}
+      {loadError && <p className="api-notice" role="status">{t('education.loadFallback', { error: loadError })}</p>}
+      {apiLoaded && qualifications.length === 0 && <p className="api-notice">{t('education.empty')}</p>}
       <section className="timeline-section">
         <h2>{t('education.educationLabel')}</h2>
         <div className="timeline-list">

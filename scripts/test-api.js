@@ -33,17 +33,39 @@ async function expectStatus(method, path, status, options) {
   return response.data
 }
 
-async function testCollection(resource, body, adminToken, fieldToUpdate) {
-  const created = await expectStatus('POST', `/api/${resource}`, 201, { body, token: adminToken })
+async function testCollection(resource, body, adminToken, fieldToUpdate, regularToken) {
+  const created = await expectStatus('POST', `/api/${resource}`, 201, {
+    body,
+    token: resource === 'contacts' ? undefined : adminToken,
+  })
   assert.ok(created._id, `${resource} create response should contain an id`)
   if (resource === 'users') assert.equal('passwordHash' in created, false, 'user responses must not expose password hashes')
   createdIds[resource].push(created._id)
+  if (resource === 'contacts') {
+    const regularContact = await expectStatus('GET', `/api/contacts/${created._id}`, 200, { token: regularToken })
+    assert.equal(regularContact._id, created._id, 'regular users should be able to read contact records')
+  }
+  await expectStatus('PUT', `/api/${resource}/${created._id}`, 403, {
+    body: { [fieldToUpdate]: 'Regular users cannot change records.' },
+    token: regularToken,
+  })
+  await expectStatus('DELETE', `/api/${resource}/${created._id}`, 403, { token: regularToken })
 
   const list = await expectStatus('GET', `/api/${resource}`, 200, { token: adminToken })
   assert.ok(list.some((record) => record._id === created._id), `${resource} list should include the created record`)
 
   const item = await expectStatus('GET', `/api/${resource}/${created._id}`, 200, { token: adminToken })
   assert.equal(item._id, created._id)
+  if (resource === 'projects' || resource === 'qualifications') {
+    assert.equal(item.startDate, body.startDate)
+    assert.equal(item.endDate, body.endDate)
+    await expectStatus('PUT', `/api/${resource}/${created._id}`, 400, {
+      body: { endDate: '2023-12-31' },
+      token: adminToken,
+    })
+    const unchanged = await expectStatus('GET', `/api/${resource}/${created._id}`, 200, { token: adminToken })
+    assert.equal(unchanged.endDate, body.endDate)
+  }
   if (resource === 'users') assert.equal('passwordHash' in item, false, 'user read must not expose password hashes')
 
   const updatedValue = resource === 'contacts' ? 'updated@example.test' : `Updated ${String(body[fieldToUpdate] || body.title || 'record')}`
@@ -105,6 +127,9 @@ async function runApiTests() {
     body: { email: regularUserCredentials.email, password: regularUserCredentials.password },
   })
   const regularToken = regularSignIn.token
+  await expectStatus('GET', '/api/contacts', 200, { token: regularToken })
+  await expectStatus('GET', '/api/projects', 200, { token: regularToken })
+  await expectStatus('GET', '/api/qualifications', 200, { token: regularToken })
 
   await expectStatus('GET', '/api/contacts', 401)
   await expectStatus('GET', '/api/users', 403, { token: regularToken })
@@ -117,34 +142,64 @@ async function runApiTests() {
     email: 'api-test@example.test',
     phone: '+16135550100',
     message: 'Temporary API integration test contact.',
-  }, adminToken, 'email')
+  }, adminToken, 'email', regularToken)
 
   const projectSlug = `api-test-${Date.now()}`
   await testCollection('projects', {
     slug: projectSlug,
     title: 'Temporary API Test Project',
-    completionDate: '2026',
+    startDate: '2024-01-01',
+    endDate: '2026-10-15',
     description: 'Temporary project record for CRUD verification.',
     descriptionFr: 'Projet temporaire de test CRUD.',
     stack: ['Node.js'],
-  }, adminToken, 'title')
+  }, adminToken, 'title', regularToken)
 
   const qualificationSlug = `api-test-${Date.now()}`
   await testCollection('qualifications', {
     slug: qualificationSlug,
     title: 'Temporary API Test Qualification',
     titleFr: 'Qualification temporaire de test',
-    completionDate: '2026',
+    startDate: '2024-01-01',
+    endDate: '2026-10-15',
     description: 'Temporary qualification record for CRUD verification.',
     descriptionFr: 'Qualification temporaire pour valider le CRUD.',
-  }, adminToken, 'title')
+  }, adminToken, 'title', regularToken)
 
   const userEmail = `api-test-managed-${Date.now()}@example.test`
   await testCollection('users', {
     name: 'Temporary Managed User',
     email: userEmail,
     password: randomBytes(24).toString('base64url'),
-  }, adminToken, 'name')
+  }, adminToken, 'name', regularToken)
+
+  const promotedId = regularUserResponse.user._id
+  await expectStatus('PUT', `/api/users/${promotedId}`, 401, { body: { role: 'admin' } })
+  await expectStatus('PUT', `/api/users/${promotedId}`, 403, { body: { role: 'admin' }, token: regularToken })
+  const promoted = await expectStatus('PUT', `/api/users/${promotedId}`, 200, { body: { role: 'admin' }, token: adminToken })
+  assert.equal(promoted.role, 'admin', 'administrator should be able to promote a user')
+  assert.equal('passwordHash' in promoted, false, 'promotion response must not expose password hashes')
+  assert.equal((await User.findById(promotedId)).role, 'admin', 'promotion must persist in MongoDB')
+  await expectStatus('GET', '/api/users', 200, { token: regularToken })
+  const promotedSignIn = await expectStatus('POST', '/api/auth/signin', 200, {
+    body: { email: regularUserCredentials.email, password: regularUserCredentials.password },
+  })
+  assert.equal(promotedSignIn.user.role, 'admin', 'subsequent sign-in should return the promoted role')
+  await expectStatus('GET', '/api/auth/me', 401)
+  assert.equal((await expectStatus('GET', '/api/auth/me', 200, { token: promotedSignIn.token })).role, 'admin')
+  await expectStatus('PUT', `/api/users/${String(admin._id)}`, 409, {
+    body: { role: 'user', name: 'Must not be changed' }, token: adminToken,
+  })
+  const unchangedAdmin = await User.findById(admin._id)
+  assert.equal(unchangedAdmin.role, 'admin')
+  assert.equal(unchangedAdmin.name, 'Temporary API Test Admin')
+  await expectStatus('PUT', `/api/users/${promotedId}`, 401, { body: { role: 'user' } })
+  const demoted = await expectStatus('PUT', `/api/users/${promotedId}`, 200, { body: { role: 'user' }, token: adminToken })
+  assert.equal(demoted.role, 'user')
+  assert.equal((await User.findById(promotedId)).role, 'user', 'revocation must persist in MongoDB')
+  assert.equal((await expectStatus('GET', '/api/auth/me', 200, { token: promotedSignIn.token })).role, 'user')
+  await expectStatus('GET', '/api/users', 403, { token: promotedSignIn.token })
+  await expectStatus('PUT', `/api/users/${promotedId}`, 403, { body: { role: 'admin' }, token: promotedSignIn.token })
 
   await expectStatus('POST', '/api/projects', 400, {
     body: { title: '', completionDate: 'bad', description: '' },

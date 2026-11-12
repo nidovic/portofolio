@@ -33,4 +33,8 @@ function signout(req, res) {
   return res.status(200).json({ message: 'Discard the access token to sign out.' })
 }
 
-export default { signup, signin, signout }
+function currentUser(req, res) {
+  return res.status(200).json(req.user)
+}
+
+export default { signup, signin, signout, currentUser }

@@ -33,6 +33,10 @@ async function update(req, res) {
   const user = await User.findById(req.params.id)
   if (!user) return res.status(404).json({ error: 'User not found.' })
 
+  if (String(user._id) === String(req.user._id) && req.body.role === 'user') {
+    return res.status(409).json({ error: 'Administrators cannot remove their own administrator access.' })
+  }
+
   for (const field of ['name', 'email', 'role']) {
     if (req.body[field] !== undefined) user[field] = req.body[field]
   }

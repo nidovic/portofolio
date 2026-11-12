@@ -6,5 +6,9 @@ export const ROUTES = Object.freeze({
   education: '/education',
   services: '/services',
   contact: '/contact',
+  signIn: '/sign-in',
+  signUp: '/sign-up',
+  admin: '/dashboard',
+  unauthorized: '/unauthorized',
   notFound: '*',
 })

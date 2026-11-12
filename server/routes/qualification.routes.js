@@ -7,12 +7,16 @@ import { validateRequest } from '../middleware/validate.js'
 const router = express.Router()
 const createRules = [
   body('title').trim().isLength({ min: 2, max: 180 }),
-  body('completionDate').trim().isLength({ min: 2, max: 80 }),
+  body('startDate').optional().isString(),
+  body('endDate').optional().isString(),
+  body('completionDate').optional({ values: 'falsy' }).trim().isLength({ min: 2, max: 80 }),
   body('description').trim().isLength({ min: 3, max: 3000 }),
 ]
 const updateRules = [
   body('title').optional().trim().isLength({ min: 2, max: 180 }),
-  body('completionDate').optional().trim().isLength({ min: 2, max: 80 }),
+  body('startDate').optional().isString(),
+  body('endDate').optional().isString(),
+  body('completionDate').optional({ values: 'falsy' }).trim().isLength({ min: 2, max: 80 }),
   body('description').optional().trim().isLength({ min: 3, max: 3000 }),
 ]
 const idRule = param('id').isMongoId()

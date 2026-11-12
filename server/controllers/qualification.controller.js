@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import Qualification from '../models/qualification.model.js'
 
 const writableFields = [
-	'slug', 'title', 'titleFr', 'completionDate', 'description', 'descriptionFr',
+	'slug', 'title', 'titleFr', 'completionDate', 'startDate', 'endDate', 'description', 'descriptionFr',
 	'institution', 'location', 'locationFr',
 ]
 

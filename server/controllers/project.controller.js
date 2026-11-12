@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import Project from '../models/project.model.js'
 
 const writableFields = [
-	'slug', 'title', 'completionDate', 'description', 'descriptionFr', 'category', 'categoryFr',
+	'slug', 'title', 'completionDate', 'startDate', 'endDate', 'description', 'descriptionFr', 'category', 'categoryFr',
 	'role', 'roleFr', 'outcome', 'outcomeFr', 'stack', 'image', 'imageAlt', 'imageAltFr',
 	'imageKind', 'links', 'sourceUrl',
 ]

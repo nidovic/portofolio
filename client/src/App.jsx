@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -6,16 +6,17 @@ import { PROFILE } from '@/constants/profile.js'
 import { ROUTES } from '@/constants/routes.js'
 import Footer from '@/components/Footer.jsx'
 import Header from '@/components/Header.jsx'
-import AboutPage from '@/pages/AboutPage.jsx'
-import ContactPage from '@/pages/ContactPage.jsx'
-import EducationPage from '@/pages/EducationPage.jsx'
 import HomePage from '@/pages/HomePage.jsx'
-import ProjectsPage from '@/pages/ProjectsPage.jsx'
-import ServicesPage from '@/pages/ServicesPage.jsx'
-import AuthPage from '@/pages/AuthPage.jsx'
-import AdminPage from '@/pages/AdminPage.jsx'
-import UnauthorizedPage from '@/pages/UnauthorizedPage.jsx'
 import ProtectedRoute from '@/components/ProtectedRoute.jsx'
+
+const AboutPage = lazy(() => import('@/pages/AboutPage.jsx'))
+const ContactPage = lazy(() => import('@/pages/ContactPage.jsx'))
+const EducationPage = lazy(() => import('@/pages/EducationPage.jsx'))
+const ProjectsPage = lazy(() => import('@/pages/ProjectsPage.jsx'))
+const ServicesPage = lazy(() => import('@/pages/ServicesPage.jsx'))
+const AuthPage = lazy(() => import('@/pages/AuthPage.jsx'))
+const AdminPage = lazy(() => import('@/pages/AdminPage.jsx'))
+const UnauthorizedPage = lazy(() => import('@/pages/UnauthorizedPage.jsx'))
 
 // Keep route declarations data-driven so path changes happen in one place.
 const pageRoutes = [
@@ -54,12 +55,14 @@ function App() {
     <div className="site-shell">
       <Header />
       <main id="main-content" className="page-content">
-        <Routes>
-          {pageRoutes.map(({ path, element }) => (
-            <Route key={path} path={path} element={element} />
-          ))}
-          <Route path={ROUTES.notFound} element={<HomePage />} />
-        </Routes>
+        <Suspense fallback={<p className="page-wrap" role="status">{t('pageLoading')}</p>}>
+          <Routes>
+            {pageRoutes.map(({ path, element }) => (
+              <Route key={path} path={path} element={element} />
+            ))}
+            <Route path={ROUTES.notFound} element={<HomePage />} />
+          </Routes>
+        </Suspense>
       </main>
       <Footer />
     </div>

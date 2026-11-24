@@ -1,8 +1,9 @@
 // Keep interface text together so both language versions stay in step.
 export const translations = {
   en: {
+    pageLoading: 'Loading page…',
     nav: { home: 'Home', about: 'About', projects: 'Projects', education: 'Education', services: 'Services', contact: 'Contact', admin: 'Dashboard', menu: 'Open navigation', skip: 'Skip to content', primary: 'Primary navigation', language: 'Select language' },
-    footer: { note: 'Software across mobile, web, and cloud.', rights: 'A portfolio built with care.', contact: 'Start a conversation' },
+    footer: { note: 'Building software across mobile, web, and cloud.', rights: 'A portfolio built with care.', contact: 'Start a conversation' },
     home: {
       titleAccent: 'From app to cloud.',
       primaryCta: 'Explore my work', secondaryCta: 'A little about me',
@@ -106,8 +107,9 @@ export const translations = {
     },
   },
   fr: {
+    pageLoading: 'Chargement de la page…',
     nav: { home: 'Accueil', about: 'À propos', projects: 'Projets', education: 'Formation', services: 'Services', contact: 'Contact', admin: 'Tableau de bord', menu: 'Ouvrir la navigation', skip: 'Aller au contenu', primary: 'Navigation principale', language: 'Choisir la langue' },
-    footer: { note: 'Logiciels mobile, web et cloud.', rights: 'Un portfolio réalisé avec soin.', contact: 'Entrer en contact' },
+    footer: { note: 'Création de logiciels mobile, web et cloud.', rights: 'Un portfolio réalisé avec soin.', contact: 'Entrer en contact' },
     home: {
       titleAccent: 'De l’app au cloud.',
       primaryCta: 'Découvrir mes projets', secondaryCta: 'À propos de moi',

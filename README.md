@@ -16,11 +16,12 @@ Vercel currently requires Node.js 24.x for its build runtime. The root `package.
 
 ## Continuous integration
 
-GitHub Actions uses three independent workflows on pushes to `main`, pull requests to `main`, and manual dispatch:
+GitHub Actions runs the following workflows on pushes to `main`, pull requests to `main`, and manual dispatch:
 
 - `.github/workflows/lint.yml` checks the client and server with `npm run lint`.
 - `.github/workflows/build.yml` builds the Vite client and validates/loads the Express backend.
 - `.github/workflows/api-test.yml` starts MongoDB 7, seeds profile records, then runs CRUD, validation, authentication, and authorization tests with an ephemeral JWT secret.
+- `.github/workflows/release.yml` runs lint, unit tests, API integration tests, the production build, and a recorded Playwright E2E test against MongoDB 7. On a successful push to `main`, it requests deployment of that exact commit to both Render services. A successful hook request means the deploy was accepted, not that it finished successfully; check Render's deploy logs.
 
 ## Local setup
 
@@ -108,3 +109,33 @@ The Postman collection at `docs/MyPortfolio.postman_collection.json` covers welc
 The `evidence/` folder contains selected screenshots for the assignment. The Word document is prepared separately and is not included in the repository. Review screenshots for private information before sharing or committing them: do not include `.env`, credentials, password hashes, or JWT values.
 
 The `npm run evidence` script targets an earlier set of screenshots and cannot regenerate the current document from the renamed files. Do not run it against the current evidence folder: its output could overwrite a Word document there.
+
+## Assignment 4: tests and performance
+
+The contact-form unit tests cover validation, successful submission, and API errors. The Playwright test submits the real form to the Express API, verifies the saved document in MongoDB, and removes that specific test document. It also saves screenshots and a WebM recording under `client/test-results/`. These files are ignored by Git and are replaced on the next E2E run; copy the evidence you need before rerunning.
+
+Use Node 26 and install dependencies as described above. For E2E, configure a MongoDB URI in the root `.env` or `MONGODB_URI` environment variable. The E2E server and direct database assertion always use a separate database named `PortfolioE2E`, regardless of `MONGODB_DB_NAME`; the MongoDB account must be allowed to read and write it.
+
+```sh
+npm test --prefix client
+node --test tests/date-range.test.js
+cd client && npx playwright install --with-deps chromium && cd ..
+VITE_API_BASE_URL=http://127.0.0.1:5001 npm run build --prefix client
+npm run test:e2e --prefix client
+```
+
+The E2E runner starts its own API on port 5001 and production preview on port 4173; both ports must be free. To use an already installed local Chrome instead of Playwright's Chromium, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to its absolute executable path. Playwright's FFmpeg is still required for video recording.
+
+For the performance improvement, secondary routes are loaded on demand rather than included in the initial home-page bundle. In one local Chrome measurement of the production preview, the encoded JavaScript resources requested on the home page fell from 144,781 to 128,537 bytes (11.2%). This is a transfer-size comparison, not a claim about a statistically significant page-load-time improvement; results vary by browser, cache, network, and deployment.
+
+## Render deployment
+
+`render.yaml` defines a free Node web service for the API and a static frontend. Render's free web service sleeps after inactivity and can take around a minute to wake; free usage and build-minute limits apply. MongoDB remains on Atlas. Review current [Render free-tier limits](https://render.com/docs/free) and [Atlas free-tier limits](https://www.mongodb.com/docs/atlas/reference/free-shared-limitations/) before provisioning.
+
+1. Connect the repository to Render and create a Blueprint from `render.yaml` on the intended release branch. The initial Blueprint deployment occurs before the GitHub Actions deploy gate; verify the selected commit before provisioning.
+2. Provide `MONGODB_URI` privately in the API service. Render generates `JWT_SECRET`. Set `CLIENT_ORIGIN` to the exact HTTPS frontend origin and `VITE_API_BASE_URL` to the exact HTTPS API origin. If the assigned Render URLs are not yet known at creation, update these values in Render afterward and manually redeploy both services. The frontend value is embedded at build time.
+3. Configure Atlas network access so the API can connect, and use a database user limited to the required database and privileges. Render's free outbound IP addresses can change; an Atlas allow-all network rule, if needed, exposes the database endpoint to the internet and requires strong credentials and careful access control. Never put the URI, credentials, or JWT secret in Git or screenshots.
+4. Seed the intended production database using the existing seed commands and private environment values, then verify the public pages, contact form, sign-in, authorization, and CRUD. Use dedicated test records and remove them after testing.
+5. In GitHub Actions repository secrets, set `RENDER_API_DEPLOY_HOOK` and `RENDER_WEB_DEPLOY_HOOK` to the respective secret deploy-hook URLs from Render. Both services have automatic deploys disabled in the Blueprint; successful `main` pushes trigger the hooks only after all checks pass. Hook responses indicate that Render accepted or queued the deploy, so confirm completion and the deployed commit in Render.
+
+The E2E and unit tests were created with AI assistance and must be reviewed, understood, and validated by the student before submission. The local tests do not establish that the deployed application works; record separate deployed-environment and CI/CD evidence once the services are live.

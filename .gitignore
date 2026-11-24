@@ -8,4 +8,6 @@ dist/
 npm-debug.log*
 *.log
 coverage/
+client/test-results/
+client/playwright-report/
 *.zip

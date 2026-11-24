@@ -1,0 +1,77 @@
+name: Test and deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand(\"ping\").ok'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      MONGODB_URI: mongodb://127.0.0.1:27017/PortfolioE2E
+      MONGODB_DB_NAME: PortfolioE2E
+      VITE_API_BASE_URL: http://127.0.0.1:5001
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            client/package-lock.json
+      - run: npm ci
+      - run: npm ci --prefix client
+      - run: npm run lint
+      - run: node --test tests/date-range.test.js
+      - run: npm test --prefix client
+      - run: npm run build:server
+      - name: Run API integration tests
+        run: |
+          export JWT_SECRET="$(openssl rand -hex 32)"
+          npm run test:api
+      - run: npm run build --prefix client
+      - name: Install browser for E2E tests
+        run: npx --prefix client playwright install --with-deps chromium
+      - run: npm run test:e2e --prefix client
+      - name: Upload E2E screenshots and video
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-evidence
+          path: |
+            client/test-results/
+            client/playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deployments for the tested commit
+        env:
+          API_HOOK: ${{ secrets.RENDER_API_DEPLOY_HOOK }}
+          WEB_HOOK: ${{ secrets.RENDER_WEB_DEPLOY_HOOK }}
+        run: |
+          test -n "$API_HOOK" && test -n "$WEB_HOOK" || { echo "Render deploy hooks are not configured"; exit 1; }
+          curl --silent --show-error --fail --get --data-urlencode "ref=$GITHUB_SHA" "$API_HOOK" > /dev/null
+          curl --silent --show-error --fail --get --data-urlencode "ref=$GITHUB_SHA" "$WEB_HOOK" > /dev/null
+          echo "Render accepted both deploy requests; check Render for deployment completion."

@@ -11,6 +11,7 @@
   "author": "Blessing Ajiboye",
   "license": "MIT",
   "devDependencies": {
+    "c8": "^10.1.3",
     "concurrently": "^10.0.6",
     "docx": "^9.10.0",
     "nodemon": "^3.1.14"
@@ -27,6 +28,8 @@
     "seed:portfolio": "node scripts/seed-portfolio.js",
     "seed:admin": "node scripts/seed-admin.js",
     "test:api": "node scripts/test-api.js",
+    "coverage:server": "c8 --all --include 'server.js' --include 'server/**/*.js' --include 'config/**/*.js' --check-coverage --lines 90 --branches 90 --reporter=text --reporter=html --reporter=json-summary --reports-dir coverage/server node scripts/coverage-server.js",
+    "coverage:client": "npm run test:coverage --prefix client",
     "evidence": "node scripts/generate-evidence.js"
   },
   "dependencies": {

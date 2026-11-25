@@ -37,7 +37,7 @@ async function fillForm(user) {
 }
 
 describe('ContactForm', () => {
-  it('rejects invalid input without calling the API', async () => {
+    it('rejects invalid input without calling the API', async () => {
     const user = userEvent.setup()
     renderForm()
     await user.type(screen.getByLabelText(/^Email/), 'not-an-email')

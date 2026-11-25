@@ -105,6 +105,20 @@ async function runApiTests() {
   assert.equal('passwordHash' in adminSignIn.user, false, 'sign-in response must not expose password hashes')
   const adminToken = adminSignIn.token
 
+  await expectStatus('POST', '/api/auth/signin', 401, {
+    body: { email: admin.email, password: 'incorrect-password' },
+  })
+  await expectStatus('GET', '/api/auth/me', 401, { token: 'invalid-token' })
+  await expectStatus('GET', '/api/not-a-route', 404)
+  await expectStatus('DELETE', `/api/users/${admin._id}`, 409, { token: adminToken })
+  for (const resource of ['contacts', 'projects', 'qualifications', 'users']) {
+    const missingId = new mongoose.Types.ObjectId()
+    await expectStatus('GET', `/api/${resource}/invalid-id`, 400, { token: adminToken })
+    await expectStatus('GET', `/api/${resource}/${missingId}`, 404, { token: adminToken })
+    await expectStatus('PUT', `/api/${resource}/${missingId}`, 404, { token: adminToken, body: {} })
+    await expectStatus('DELETE', `/api/${resource}/${missingId}`, 404, { token: adminToken })
+  }
+
   await expectStatus('GET', '/', 200)
   await expectStatus('GET', '/api/health', 200)
   await expectStatus('GET', '/api/projects', 200)

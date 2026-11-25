@@ -102,6 +102,21 @@ npm run test:api
 
 `test:api` runs real HTTP requests against MongoDB, checks CRUD/validation/JWT authorization and password privacy, then deletes its temporary test records. It requires a working `MONGODB_URI` and local `JWT_SECRET` in `.env`.
 
+## Test coverage
+
+With dependencies installed and Node 26 selected, run:
+
+```sh
+npm run coverage:client
+MONGODB_DB_NAME=PortfolioE2E JWT_SECRET=isolated-local-test-secret-at-least-32-characters node --env-file=.env "$(command -v npm)" run coverage:server
+```
+
+The server command requires an explicit `MONGODB_URI` and the isolated `PortfolioE2E` database name. Use a test-only MongoDB cluster or user, not production credentials. It runs the Node unit tests and HTTP integration suite; the latter creates and removes temporary records. The test database must be reachable and allow writes. Do not share the `.env` file.
+
+The client report covers application JavaScript and JSX under `client/src`, excluding test files. The server report covers `server.js`, `server/**/*.js`, and `config/**/*.js`; tests and scripts are not included in the denominator. Each command enforces at least 90% line and branch coverage, and the release workflow uploads both reports as an artifact. The browser E2E run is not instrumented by these reports. View `coverage/client/index.html` and `coverage/server/index.html` locally. Coverage percentages describe which lines and branches were exercised, not proof that the application is defect-free.
+
+The frontend repositories each have a corresponding `*.test.js` file. `client/e2e/interfaces.spec.js` checks all ten screens at desktop and mobile sizes, verifies that their images load, and captures screenshots in `client/test-results/` and the Playwright HTML report. Selected screenshots from a local run are saved separately in `evidence/interface-tests/`; they do not update automatically when tests are rerun. The interface test uses controlled API responses and a simulated administrator session, so it is not evidence of deployed API or authentication behavior. Run it with `npm run test:e2e --prefix client -- interfaces.spec.js` after building the client and configuring the isolated MongoDB test database required by the Playwright server. The separate contact E2E test uses the real API and database.
+
 The Postman collection at `docs/MyPortfolio.postman_collection.json` covers welcome/health, sign-up/sign-in/sign-out, and CRUD requests for all four resources. In Postman, set `baseUrl` to `http://localhost:5000`; set `adminEmail` and `adminPassword` from your private `.env` values. Capture screenshots showing each request, response body, and HTTP status for the assignment. Do not include the password or token in screenshots.
 
 ## Assignment evidence

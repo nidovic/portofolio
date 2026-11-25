@@ -39,13 +39,20 @@ jobs:
       - run: npm ci
       - run: npm ci --prefix client
       - run: npm run lint
-      - run: node --test tests/date-range.test.js
-      - run: npm test --prefix client
+      - run: npm run coverage:client
       - run: npm run build:server
-      - name: Run API integration tests
+      - name: Run server tests and coverage
         run: |
           export JWT_SECRET="$(openssl rand -hex 32)"
-          npm run test:api
+          npm run coverage:server
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: coverage/
+          if-no-files-found: ignore
+          retention-days: 7
       - run: npm run build --prefix client
       - name: Install browser for E2E tests
         run: npx --prefix client playwright install --with-deps chromium

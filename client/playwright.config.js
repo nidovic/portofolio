@@ -8,16 +8,20 @@ loadEnv({ path: fileURLToPath(new URL('../.env', import.meta.url)), quiet: true 
 
 export default defineConfig({
   testDir: './e2e',
-  timeout: 60_000,
+  timeout: 180_000,
   workers: 1,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: 'http://127.0.0.1:4173',
-    video: 'on',
+    viewport: { width: 1280, height: 720 },
+    video: { mode: 'on', size: { width: 1280, height: 720 } },
     screenshot: 'only-on-failure',
-    launchOptions: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
-      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH }
-      : {},
+    launchOptions: {
+      slowMo: 1000,
+      ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
+        ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH }
+        : {}),
+    },
   },
   webServer: [
     {

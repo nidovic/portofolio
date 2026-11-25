@@ -48,7 +48,7 @@ export const translations = {
       email: 'Email address', message: 'What’s on your mind?',
       placeholders: { firstName: 'Your first name', lastName: 'Your last name', phone: '+1 (555) 123-4567', email: 'you@example.com', message: 'A little about the project, the timing, or the question…' },
       send: 'Send message', required: 'This field is required.', invalidEmail: 'Enter a valid email address.',
-      invalidPhone: 'Enter a valid contact number.', note: 'Your message is saved to the portfolio database; no email is sent.', submitError: 'Could not save your message. Please try again later.',
+      invalidPhone: 'Enter a valid contact number.', submitError: 'Could not save your message. Please try again later.',
     },
     auth: {
       signinEyebrow: 'Your portfolio account', signupEyebrow: 'Create an account',
@@ -154,7 +154,7 @@ export const translations = {
       email: 'Adresse e-mail', message: 'Ton message',
       placeholders: { firstName: 'Ton prénom', lastName: 'Ton nom', phone: '+1 (555) 123-4567', email: 'toi@exemple.fr', message: 'Quelques mots sur le projet, le calendrier ou ta question…' },
       send: 'Envoyer le message', required: 'Ce champ est obligatoire.', invalidEmail: 'Saisis une adresse e-mail valide.',
-      invalidPhone: 'Saisis un numéro de téléphone valide.', note: 'Le message est enregistré dans la base du portfolio; aucun courriel n’est envoyé.', submitError: 'Impossible d’enregistrer ton message. Réessaie plus tard.',
+      invalidPhone: 'Saisis un numéro de téléphone valide.', submitError: 'Impossible d’enregistrer ton message. Réessaie plus tard.',
     },
     auth: {
       signinEyebrow: 'Ton compte portfolio', signupEyebrow: 'Créer un compte',

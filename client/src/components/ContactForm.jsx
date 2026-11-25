@@ -63,7 +63,6 @@ function ContactForm() {
         <Button className="action-button action-button--dark" size="lg" type="submit" disabled={isSubmitting}>
           {t('contact.send')} <ArrowUpRight size={17} aria-hidden="true" />
         </Button>
-        <p>{t('contact.note')}</p>
       </div>
       {submitError && <p className="field-error" role="alert">{submitError}</p>}
     </form>

@@ -1,4 +1,4 @@
-name: Test and deploy
+name: Test
 
 on:
   push:
@@ -11,6 +11,15 @@ permissions:
   contents: read
 
 jobs:
+  lint:
+    uses: ./.github/workflows/lint.yml
+
+  build:
+    uses: ./.github/workflows/build.yml
+
+  api-test:
+    uses: ./.github/workflows/api-test.yml
+
   test:
     runs-on: ubuntu-latest
     services:
@@ -67,18 +76,3 @@ jobs:
             client/playwright-report/
           if-no-files-found: ignore
           retention-days: 7
-
-  deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Render deployments for the tested commit
-        env:
-          API_HOOK: ${{ secrets.RENDER_API_DEPLOY_HOOK }}
-          WEB_HOOK: ${{ secrets.RENDER_WEB_DEPLOY_HOOK }}
-        run: |
-          test -n "$API_HOOK" && test -n "$WEB_HOOK" || { echo "Render deploy hooks are not configured"; exit 1; }
-          curl --silent --show-error --fail --get --data-urlencode "ref=$GITHUB_SHA" "$API_HOOK" > /dev/null
-          curl --silent --show-error --fail --get --data-urlencode "ref=$GITHUB_SHA" "$WEB_HOOK" > /dev/null
-          echo "Render accepted both deploy requests; check Render for deployment completion."

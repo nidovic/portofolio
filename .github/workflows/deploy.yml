@@ -1,0 +1,49 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [Test]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: render-production-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check that the tested commit is still the tip of main
+        id: current
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          TESTED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          current_sha="$(gh api "repos/$REPOSITORY/git/ref/heads/main" --jq .object.sha)"
+          if [ "$current_sha" = "$TESTED_SHA" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Skipping deployment: tested commit $TESTED_SHA is no longer the tip of main."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Trigger Render deployments for the tested commit
+        if: steps.current.outputs.deploy == 'true'
+        env:
+          API_HOOK: ${{ secrets.RENDER_API_DEPLOY_HOOK }}
+          WEB_HOOK: ${{ secrets.RENDER_WEB_DEPLOY_HOOK }}
+          TESTED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          test -n "$API_HOOK" && test -n "$WEB_HOOK" || { echo "Render deploy hooks are not configured"; exit 1; }
+          curl --silent --show-error --fail --get --data-urlencode "ref=$TESTED_SHA" "$API_HOOK" > /dev/null
+          curl --silent --show-error --fail --get --data-urlencode "ref=$TESTED_SHA" "$WEB_HOOK" > /dev/null
+          echo "Render accepted both deploy requests for $TESTED_SHA; check Render for deployment completion."
